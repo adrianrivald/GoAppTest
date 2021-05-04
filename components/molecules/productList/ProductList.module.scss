@@ -1,0 +1,10 @@
+.product-list {
+    flex-direction: column;
+    .product-section-title {
+        margin: 0;
+        margin-bottom: 10px;
+        h1 {
+            font-size: 14px;
+        }
+    }
+}

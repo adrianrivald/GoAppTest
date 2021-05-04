@@ -1,0 +1,41 @@
+.material-text-field {
+    display: block;
+
+    .label {
+        font-size: 16px;
+        font-weight: bold;
+        color: #0e4d71;
+    }
+
+    .input-area {
+        display: flex;
+        margin: 10px 0px;
+        justify-content: space-between;
+
+        input {
+            border-width: 0;
+            outline: 0;
+            font-size: 14px;
+            color: #4a4a4a;
+            width: 100%;
+            font-family: 'roboto';
+        }
+    }
+
+    .line {
+        height: 1px;
+        background-color: #0e4d71;
+    }
+
+    .info {
+        display: flex;
+        margin-top: 5px;
+        justify-content: space-between;
+
+        span {
+            color: #4a4a4a;
+            font-size: 8px;
+            font-weight: normal;
+        }
+    }
+}

@@ -1,0 +1,32 @@
+.search-bar {
+    display: block;
+    width: 50%;
+    .input-area {
+        display: flex;
+        margin: 10px 0px;
+        justify-content: space-between; 
+        background: #e5e7eb;
+        border-width: 0;
+        outline: 0;
+        padding: 10px;
+        // width: 100%;
+        margin-left: 10px;
+        font-size: 14px;
+        height: 20px;
+        color: #ffffff;
+        border-radius: 5px;
+
+        .left-icon {
+            width: 17px;
+            height: 17px;
+            object-fit: contain;
+        }
+
+        input {
+            background: #e5e7eb;
+            border-width: 0;
+            outline: 0;
+            width: 100%;
+        }
+    }
+}

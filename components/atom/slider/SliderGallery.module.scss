@@ -1,0 +1,61 @@
+.slider {
+    div {
+        .slick-list {
+            height: 100px;
+        }
+        width: 100%;
+        position: relative !important;
+
+        .image-div {
+            height: 0px;
+            padding-top: 56.25%;
+            /* ratio 16:9 */
+
+            img {
+                position: absolute;
+                left: 0;
+                top: 0;
+                cursor: pointer;
+                height: 100%;
+                width: 100%;
+                object-fit: inherit;
+                object-position: center;
+            }
+        }
+    }
+
+    .slick-dots {
+        bottom: 0px;
+
+        li {
+            margin: 0;
+            width: unset !important;
+
+            &.slick-active {
+                button {
+                    &:before {
+                        color: #c4c4c4 !important;
+                    }
+                }
+            }
+
+            button {
+                width: unset !important;
+
+                &:before {
+                    width: unset !important;
+                    font-size: 8px;
+                }
+            }
+        }
+    }
+}
+
+.slider-tall {
+    padding-top: 7px;
+    background-color: #f2f2f2;
+
+    img {
+        height: 204px;
+    }
+}
