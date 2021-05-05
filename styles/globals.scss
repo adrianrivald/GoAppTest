@@ -4,6 +4,24 @@ html {
 }
 
 
+@font-face {
+  font-family: 'roboto';
+  src: local('roboto'),
+    url(../assets/fonts/Roboto-Regular.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'roboto-medium';
+  src: local('roboto-medium'),
+    url(../assets/fonts/Roboto-Medium.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'roboto-bold';
+  src: local('roboto-bold'),
+    url(../assets/fonts/Roboto-Bold.ttf) format('truetype');
+}
+
 .link {
   text-decoration: none;
 }
@@ -16,6 +34,7 @@ body {
   background-color: #fff;
   min-height: 100%;
   box-sizing: border-box;
+  font-family: 'roboto';
   // width: 100%;
   // margin-left: auto;
   // margin-right: auto;

@@ -143,6 +143,8 @@
         /* popup-box-title */
         .popup-box-title {
           margin-bottom: 20px;
+          justify-content: space-between;
+          display: flex;
           .title {
             @include text();
             font-size: 14px;
@@ -236,21 +238,6 @@
         }
       }
       /* popup-box-top */
-  
-      /* popup-box-bottom */
-      .popup-box-bottom {
-        padding: 15px;
-  
-        /* line */
-        .line {
-          width: 100%;
-          height: 0.5px;
-          background-color: #d8d8d8;
-          margin-bottom: 10px;
-        }
-        /* line */
-      }
-      /* popup-box-bottom */
     }
     /* popup-box */
   }      

@@ -1,4 +1,4 @@
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { useRouter } from 'next/dist/client/router'
@@ -155,6 +155,7 @@ const Home = ({
                 <div className={`${styles['popup-box-top']}`}>
                     <div className={`${styles['popup-box-title']}`}>
                       <span className={`${styles['title']}`}>Quantity</span>
+                      <FontAwesomeIcon icon={faTimes} style={{fontSize: '12px',color: 'white',cursor: 'pointer'}} onClick={() => setToggleCart(false)}/>
                     </div>
                     <div className={`${styles['amount-count']} 'left'`}>
                       <span
