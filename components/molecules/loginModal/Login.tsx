@@ -18,10 +18,27 @@ interface AddressModalProps {
     isLoggedIn: string;
     email: string;
     otpCode: string;
+    account_name: string;
+    business_name: string;
+    account_email: string;
   }
 
 const LoginModal: FC<AddressModalProps> = (props) => {
-    const { action, isError, popupHandler, handleChange, loginHandler, logoutHandler, isLoggedIn, email, otpCode, isLoginFirst} = props;
+    const { 
+        action, 
+        isError, 
+        popupHandler, 
+        handleChange, 
+        loginHandler, 
+        logoutHandler, 
+        isLoggedIn, 
+        email, 
+        otpCode, 
+        isLoginFirst,
+        account_email,
+        account_name,
+        business_name
+    } = props;
   
     return (
     <div className={`${styles[`login-modal`]} ${action ? styles['show'] : styles['']}`}>
@@ -40,11 +57,22 @@ const LoginModal: FC<AddressModalProps> = (props) => {
             {
             isLoggedIn ? 
             <div className={`${styles['logged-in']}`}> 
-                <h1>Anda telah login</h1>
                 <div className={`${styles['user-info']}`}>
-                    
+                    <h1>Hi, {account_name}</h1>
+                    <div className={`${styles['user-detail']}`}>
+                        <span className={`${styles['business']}`}>
+                            Company : {business_name}
+                        </span>
+                        <span className={`${styles['email']}`}>
+                            Email : {account_email}
+                        </span>
+                    </div>
                 </div>
-                <p onClick={logoutHandler}>Logout</p>
+                <div className={`${styles['submit']}`}>
+                    <button className={`${styles['button']}`} onClick={logoutHandler}>
+                        Logout
+                    </button>
+                </div>
             </div> :
             <>
             <div className={`${styles['title']}`}>

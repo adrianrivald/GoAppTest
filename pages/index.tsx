@@ -16,10 +16,11 @@ import { NameLogoModelType } from '../models/NameLogoModel'
 import { ProductDetailModelType } from '../models/ProductModel'
 import styles from '../styles/Home.module.scss'
 import Cookies from 'universal-cookie';
-import { UserModelType } from '../models/UserModel'
+import { UserInfoModelType, UserModelType } from '../models/UserModel'
 import { PostAddToCart } from '../api/PostAddToCart'
 import { GetUserInfo } from '../api/GetUserInfo'
 import Popup from '../components/atom/popup/Popup'
+import { ProductListMoreProps, productListMore } from '../helpers/productListData'
 
 
 const Home = ({
@@ -29,6 +30,7 @@ const Home = ({
 } :InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const [ nameAndLogo ] = useState(nameLogo as NameLogoModelType)
   const [ productDataList ] = useState(productData as ProductDetailModelType[])
+  const [productMore, setProductMore] = useState([] as ProductListMoreProps[])
   const [search, setSearch] = useState('');
   const [isSearch, setIsSearch] = useState(false);
   const [isSearchTyped, setIsSearchTyped] = useState(false);
@@ -48,9 +50,11 @@ const Home = ({
   //counter
   const [orderCounter, setOrderCounter] = useState(0);
   const [productUid, setProductUid] = useState(0);
+  const [userInfo, setUserInfo] = useState({} as UserInfoModelType);
 
 
   useEffect(()=>{
+    setProductMore(productListMore)
     getUserInfo();
     window.scroll(0,0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,7 +62,8 @@ const Home = ({
 
   const getUserInfo = () => {
     if(tokenLogin){
-      GetUserInfo(token).then((result)=> {
+      GetUserInfo(tokenLogin).then((result)=> {
+        setUserInfo(result)
       })
     }
   }
@@ -234,6 +239,22 @@ const Home = ({
                 addToCart={cartToggle}
                 orderCounter={orderCounter}
               />
+              {/* <div className={`${styles['product-list-more']}`}>
+                <div className={`${styles['product-list-more-title']}`}>
+                  <h1>Produk lainnya</h1>
+                </div>
+                {
+                  productMore.map((result) => {
+                    return (
+                      <div className={`${styles['product-list-more-item']}`}>
+                        <span className={`${styles['title']}`}>
+                          {result.product_name}
+                        </span>
+                      </div>
+                    )
+                  })
+                }
+              </div> */}
             </div>
           </>
          : 
@@ -306,6 +327,9 @@ const Home = ({
           logoutHandler={logoutHandler}
           isError={isError}
           isLoginFirst={isLoginFirst}
+          account_email={userInfo.email}
+          account_name={userInfo.username}
+          business_name={userInfo.business_name}
         />
 
         {/* Popup AddtoCart */}

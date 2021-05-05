@@ -12,9 +12,8 @@ export const GetUserInfo = async (
     .post(
       `https://account.dev.goapp.co.id/auth/token-info/`, 
       {
-          token_data: {
               token: token
-          }
+          
       },
     )
     .then(({ data }) => {
