@@ -2,14 +2,10 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { useRouter } from 'next/dist/client/router'
-import Head from 'next/head'
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { GetNameAndLogo } from '../api/GetNameAndLogo'
 import { GetProduct } from '../api/GetProduct'
 import { PostLogin } from '../api/PostLogin'
-import ProductCard from '../components/atom/productCard/ProductCard'
 import SliderGallery from '../components/atom/slider/SliderGallery'
 import Header from '../components/molecules/header/Header'
 import LoginModal from '../components/molecules/loginModal/Login'
@@ -18,7 +14,6 @@ import { bannerData } from '../helpers/bannerDataList'
 import { priceToRupiah } from '../helpers/priceToRupiah'
 import { NameLogoModelType } from '../models/NameLogoModel'
 import { ProductDetailModelType } from '../models/ProductModel'
-import { StoreStateType } from '../store'
 import styles from '../styles/Home.module.scss'
 import Cookies from 'universal-cookie';
 import { UserModelType } from '../models/UserModel'
@@ -43,24 +38,26 @@ const Home = ({
   const [isError, setIsError] = useState(false);
   const [isLoginFirst, setIsLoginFirst] = useState(false)
   const [isAddToCart, setIsAddToCart] = useState(false)
-
+  const [toggleCart, setToggleCart] = useState(false)
   const [toggleLogin, setToggleLogin] = useState(false)
+  const [amount, setAmount] = useState(0);
   const router = useRouter();
-  const dispatch = useDispatch();
   let resultToken = '';
   const cookies = new Cookies();
-  const cookie_username: string = process.env.COOKIE_USERNAME!;
   const cookie_token: string = process.env.COOKIE_TOKEN!;
   const tokenLogin = cookies.get(cookie_token);
-  const usernameLogin = cookies.get(cookie_username);
   const [loginInput, setLoginInput] = useState({} as UserModelType);
   const dateExpired = new Date();
   dateExpired.setFullYear(dateExpired.getFullYear() + 1);
   console.log(productDataList, 'apani')
+  //counter
+  const [orderCounter, setOrderCounter] = useState(0);
+  const [productUid, setProductUid] = useState(0);
+
 
   useEffect(()=>{
     getUserInfo();
-    console.log(tokenLogin,usernameLogin,'apanitoken')
+    console.log(tokenLogin,'apanitoken')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
@@ -89,7 +86,9 @@ const Home = ({
 
   const showLogin = () => {
     setToggleLogin(!toggleLogin)
-    setIsLoginFirst(false)
+    setTimeout(() => {
+      setIsLoginFirst(false)
+    }, 500);
   }
 
   const imageStyle = {
@@ -113,18 +112,10 @@ const Home = ({
   }
 
   const addToCart = (uid: number, quantity: number) => {
-    // const items = productDataList.map((item) => Object.assign({}, item));
-    // items[i].count = Number(counter);
-    // const { uid, original_price } = productDataList[i];
-    // const orderPriceConverted = original_price.price.toString()
-    // setOrderCounter(orderCounter + counter);
-    // setOrderPrice(parseInt(orderPriceConverted) + orderPrice);
-    // dispatch(addProductQuantity(orderCounter));
-    // dispatch(addProductPrice(parseInt(orderPriceConverted)));
-    // console.log(parseInt(orderPriceConverted), orderCounter, orderPrice, 'apaniiiredux')
     if(tokenLogin) {
-      PostAddToCart(uid, quantity + 1, token, tokenLogin).then((result)=> {
-        setIsAddToCart(true)
+      PostAddToCart(uid, quantity, token, tokenLogin).then((result)=> {
+          setToggleCart(false)
+          setIsAddToCart(true)
           setTimeout(() => {
             setIsAddToCart(false)
           }, 5000);
@@ -135,6 +126,72 @@ const Home = ({
       setToggleLogin(!toggleLogin)
     }
   }
+
+  const increase = () => {
+      setOrderCounter(orderCounter + 1);
+    console.log(orderCounter, 'apaniincrease');
+  };
+
+  const decrease = () => {
+    setOrderCounter(orderCounter - 1);
+    console.log('apanidecrease', orderCounter);
+  };
+
+  const cartChange = (count: number) => {
+    setOrderCounter(count);
+
+  }
+
+  const cartToggle = (uid: number) => {
+    setToggleCart(!toggleCart)
+    setProductUid(uid)
+  }
+
+  const cartModal = (uid: number) => {
+    return (
+        <div className={`${styles['cart-modal']} ${toggleCart ? styles['show'] : styles['']}`}>
+            <div className={`${styles['background-cart-modal']}`} onClick={() => setToggleCart(!toggleCart)}></div>
+            <div className={`${styles['popup-box']}`}>
+                <div className={`${styles['popup-box-top']}`}>
+                    <div className={`${styles['popup-box-title']}`}>
+                      <span className={`${styles['title']}`}>Quantity</span>
+                    </div>
+                    <div className={`${styles['amount-count']} 'left'`}>
+                      <span
+                        className={`${styles['button']} ${styles['decrease']}`}
+                        onClick={decrease}
+                      >
+                        -
+                      </span>
+                      <input
+                        type='text'
+                        inputMode='numeric'
+                        pattern='[0-9]*'
+                        className={`${styles['total']}`}
+                        value={orderCounter}
+                        onChange={() => cartChange(orderCounter)}
+                        // onBlur={(e: ChangeEvent<HTMLInputElement>) => {
+                        //   updateValue(e.target.value);
+                        // }}
+                      />
+                      <span
+                        className={`${styles['button']} ${styles['increment']}`}
+                        onClick={increase}
+                      >
+                        +
+                      </span>
+                    </div>
+                    <div className={`${styles['add-to-cart']}`}>
+                        <button className={`${styles['button']}`} onClick={() =>addToCart(uid, orderCounter)}>
+                            <FontAwesomeIcon icon={faPlus} style={{width: '20px'}}/>
+                            <span className={`${styles['text']}`}>Add to cart</span>
+                        </button>    
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
 
   const handleChange = (e: any) => {
     e.preventDefault();
@@ -168,30 +225,9 @@ const Home = ({
   }
 
   const logoutHandler = () => {
-      // Auth.removeSession();
       cookies.remove(cookie_token);
-      cookies.remove(cookie_username);
       router.reload()
   }
-//   const cartModal = () => {
-//     return (
-//         <div className={`cart-modal ${toggleCart ? 'show' : ''}`}>
-//             {/* <div className="background" onClick={popupHandler}></div> */}
-//             <div className="popup-box">
-//                 <div className="popup-box-top">
-//                     <div className="popup-box-title">
-//                     <span className="title">{amount} Items | {priceToRupiah(price)}</span> <br />
-//                     <span className="subtitle">Termasuk ongkos kirim</span>
-//                     </div>
-//                     <div onClick={popupHandler} className='popup-close'>
-//                         <FontAwesomeIcon icon={faShoppingCart} style={{marginRight: '10px'}}/>
-//                         <FontAwesomeIcon icon={faChevronRight} />
-//                     </div>
-//                 </div>
-//             </div>
-//         </div>
-//     )
-// }
 
   return (
     <div className={`${styles['container']}`}>
@@ -204,7 +240,8 @@ const Home = ({
               <ProductList
                 productData={productDataList}
                 value='Produk Terlaris'
-                addToCart={addToCart}
+                addToCart={cartToggle}
+                orderCounter={orderCounter}
               />
             </div>
           </>
@@ -236,7 +273,7 @@ const Home = ({
                                   <div className={`${styles['product-sold']}`}>Terjual | {result.total_sold}</div>  
                               </div>
                               <div className={`${styles['add-to-cart']}`}>
-                                  <button className={`${styles['button']}`} onClick={() =>addToCart(result.uid, 1)}>
+                                  <button className={`${styles['button']}`} onClick={()=> cartToggle(result.uid)}>
                                       <FontAwesomeIcon icon={faPlus} style={{width: '20px'}}/>
                                       <span className={`${styles['text']}`}>Add to cart</span>
                                   </button>    
@@ -287,6 +324,9 @@ const Home = ({
               value="Success add to cart"
               icon="https://lh3.googleusercontent.com/proxy/S2cE_uwPmIwKE_bBxIF54C_21HHjMhe18AIwWJhNP6AAd6m9R6NSC8QFEmNR7gei4zNdwYNulcA5Sgyt6anwBqqRAPUT-rR7HtiT6uAXimnqLB6-VeM2RYV2Ua4bitWqNA"
             /> : null
+        }
+        {
+          cartModal(productUid) 
         }
     </div>
   )

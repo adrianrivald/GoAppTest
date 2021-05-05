@@ -65,12 +65,200 @@
         }
       }
     }
-}
-
-
-@media (max-width: 600px) {
-  .grid {
-    width: 100%;
-    flex-direction: column;
+    
   }
-}
+  @mixin text {
+    font-family: 'open-sans';
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #fff;
+  }
+  
+  .cart-modal {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    // height: 100%;
+    z-index: 10;
+    display: block;
+    visibility: hidden;
+  
+    /* show */
+    &.show {
+      display: block;
+      visibility: visible;
+  
+      & .background {
+        opacity: 0.5;
+      }
+  
+      & .popup-box {
+        transform: translateY(0%);
+      }
+    }
+    /* show */
+  
+    /* background */
+    .background-cart-modal {
+      height: 100%;
+      background-color: black;
+      opacity: 0;
+      -webkit-transition: all 0.5s ease-in-out;
+      transition: all 0.5s ease-in-out;
+    }
+    /* background */
+  
+    /* popup-box */
+    .popup-box {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: auto;
+      width: 100%;
+      background-color: white;
+      border-bottom: 2px solid #d8d8d8;
+      height: auto;
+      transform: translateY(200%);
+      transition: all 0.5s ease-in-out;
+  
+      @media only screen and (min-width: 360px) {
+        width: 100%;
+      }
+  
+      @media only screen and (min-width: 480px) {
+        width: 480px;
+      }
+  
+      /* popup-box-top */
+      .popup-box-top {
+        padding: 15px;
+        border-radius: 5px;
+        background-color: #0e4d71;
+        height: 130px;
+  
+        /* popup-box-title */
+        .popup-box-title {
+          margin-bottom: 20px;
+          .title {
+            @include text();
+            font-size: 14px;
+            font-weight: bold;
+          }
+  
+          .subtitle {
+            @include text();
+            font-size: 12px;
+          }
+        }
+        /* popup-box-title */
+  
+        /* popup-close */
+        .popup-close {
+          @include text();
+          font-size: 16px;
+          text-align: right;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+        /* popup-close */
+
+        /* amount count */
+        .amount-count {
+          font-size: 12px;
+          font-weight: bold;
+          color: #666666;
+          display: flex;
+
+          &.left {
+              justify-content: flex-start;
+          }
+
+          &.center {
+              justify-content: center;
+          }
+
+          &.right {
+              justify-content: flex-end;
+          }
+
+          .button {
+              background-color: rgba(227, 227, 227, 0.49);
+              border-radius: 2px;
+              padding: 10px 15px;
+              flex-basis: auto;
+              cursor: pointer;
+          }
+
+          .decrease {
+              margin-right: 10px;
+
+              &.disabled {
+                  pointer-events: none;
+                  opacity: 0.5;
+              }
+          }
+
+          .total {
+              border: solid 0.5px #979797;
+              padding: 7px 10px;
+              border-radius: 2px;
+              font-size: 14px;
+              font-weight: bold;
+              text-align: center;
+              width: 10%;
+          }
+
+          .increment {
+              margin-left: 10px;
+
+              &.disabled {
+                  pointer-events: none;
+                  opacity: 0.5;
+              }
+          }
+        }
+
+        /* amount count */
+          .add-to-cart {
+            margin-top: 20px;
+            .button {
+                cursor: pointer;
+                border:0;
+                color: #000;
+                background-color:#d8d8d8;
+                padding: 10px;
+                border-radius: 5px;
+            }
+        }
+      }
+      /* popup-box-top */
+  
+      /* popup-box-bottom */
+      .popup-box-bottom {
+        padding: 15px;
+  
+        /* line */
+        .line {
+          width: 100%;
+          height: 0.5px;
+          background-color: #d8d8d8;
+          margin-bottom: 10px;
+        }
+        /* line */
+      }
+      /* popup-box-bottom */
+    }
+    /* popup-box */
+  }      
+  
+  
+  @media (max-width: 600px) {
+    .grid {
+      width: 100%;
+      flex-direction: column;
+    }
+  }

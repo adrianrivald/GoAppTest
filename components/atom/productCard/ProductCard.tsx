@@ -9,12 +9,14 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 interface ProductCardProps {
   productData: ProductDetailModelType[];
   addToCart: (uid: number, quantity: number) => void;
+  orderCounter: number
 }
 
 const ProductCard = (Props: ProductCardProps) => {
   const {
    productData,
-   addToCart
+   addToCart,
+   orderCounter
   } = Props;
   
  
@@ -33,7 +35,7 @@ const ProductCard = (Props: ProductCardProps) => {
                             <div className={`${styles['product-sold']}`}>Terjual | {result.total_sold}</div>  
                         </div>
                         <div className={`${styles['add-to-cart']}`}>
-                            <button className={`${styles['button']}`} onClick={() =>addToCart(result.uid, 1)}>
+                            <button className={`${styles['button']}`} onClick={() =>addToCart(result.uid, orderCounter)}>
                                 <FontAwesomeIcon icon={faPlus} style={{width: '20px'}}/>
                                 <span className={`${styles['text']}`}>Add to cart</span>
                             </button>    
