@@ -27,12 +27,10 @@ token
     e.preventDefault();
     const { value, name } = e.target;
     setRequest((multipleInput) => ({ ...multipleInput, [name]: value }));
-    console.log(request, 'apanireq')
   };
 
   const requestOtp = () => {
       PostRequestLogin(request, token).then((result)=> {
-          console.log(result,'apanirequ')
           if(result.status === 'sent'){
               alert('OTP Requested, check your email')
               router.push('/')

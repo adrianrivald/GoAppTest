@@ -33,7 +33,6 @@ const Cart = ({
         GetCart(token,tokenLogin).then((result)=> {
           setCart(result)
           setCartItem(result.lines)
-          console.log(result,'apanicart')
         })
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps

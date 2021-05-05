@@ -18,10 +18,7 @@ import styles from '../styles/Home.module.scss'
 import Cookies from 'universal-cookie';
 import { UserModelType } from '../models/UserModel'
 import { PostAddToCart } from '../api/PostAddToCart'
-import { LinesModelType } from '../models/CartModel'
-import { addCartItem } from '../store/cart/action'
 import { GetUserInfo } from '../api/GetUserInfo'
-import { TokenModelType } from '../models/TokenModel'
 import Popup from '../components/atom/popup/Popup'
 
 
@@ -40,7 +37,6 @@ const Home = ({
   const [isAddToCart, setIsAddToCart] = useState(false)
   const [toggleCart, setToggleCart] = useState(false)
   const [toggleLogin, setToggleLogin] = useState(false)
-  const [amount, setAmount] = useState(0);
   const router = useRouter();
   let resultToken = '';
   const cookies = new Cookies();
@@ -49,7 +45,6 @@ const Home = ({
   const [loginInput, setLoginInput] = useState({} as UserModelType);
   const dateExpired = new Date();
   dateExpired.setFullYear(dateExpired.getFullYear() + 1);
-  console.log(productDataList, 'apani')
   //counter
   const [orderCounter, setOrderCounter] = useState(0);
   const [productUid, setProductUid] = useState(0);
@@ -57,14 +52,13 @@ const Home = ({
 
   useEffect(()=>{
     getUserInfo();
-    console.log(tokenLogin,'apanitoken')
+    window.scroll(0,0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
   const getUserInfo = () => {
     if(tokenLogin){
       GetUserInfo(token).then((result)=> {
-        console.log(result, 'apaniuserinfo')
       })
     }
   }
@@ -119,7 +113,6 @@ const Home = ({
           setTimeout(() => {
             setIsAddToCart(false)
           }, 5000);
-        console.log(result, 'apaniaddtocart')
       })
     } else {
       setIsLoginFirst(true)
@@ -128,13 +121,11 @@ const Home = ({
   }
 
   const increase = () => {
-      setOrderCounter(orderCounter + 1);
-    console.log(orderCounter, 'apaniincrease');
+    setOrderCounter(orderCounter + 1);
   };
 
   const decrease = () => {
     setOrderCounter(orderCounter - 1);
-    console.log('apanidecrease', orderCounter);
   };
 
   const cartChange = (count: number) => {
@@ -143,8 +134,13 @@ const Home = ({
   }
 
   const cartToggle = (uid: number) => {
-    setToggleCart(!toggleCart)
-    setProductUid(uid)
+    if(tokenLogin){
+      setToggleCart(!toggleCart)
+      setProductUid(uid)
+    } else {
+      setIsLoginFirst(true)
+      setToggleLogin(!toggleLogin)
+    }
   }
 
   const cartModal = (uid: number) => {
@@ -171,9 +167,6 @@ const Home = ({
                         className={`${styles['total']}`}
                         value={orderCounter}
                         onChange={() => cartChange(orderCounter)}
-                        // onBlur={(e: ChangeEvent<HTMLInputElement>) => {
-                        //   updateValue(e.target.value);
-                        // }}
                       />
                       <span
                         className={`${styles['button']} ${styles['increment']}`}
@@ -198,7 +191,6 @@ const Home = ({
     e.preventDefault();
     const { value, name } = e.target;
     setLoginInput((multipleInput) => ({ ...multipleInput, [name]: value }));
-    console.log(value, 'apanilogin')
   };
 
   const loginHandler = () => {
@@ -207,13 +199,11 @@ const Home = ({
         if(result){
           alert('Login Sukses!')
           resultToken = result.token;
-          console.log(result.token, 'apanitoken')
           setIsError(false)
           window.location.href = '/'
         } else {
           setIsError(true)
         }
-        console.log(result, 'apaniresultlogin')
       }).catch((e)=>{
         console.log(e,'error')
         }).finally(()=>{
@@ -340,7 +330,7 @@ export const getServerSideProps: GetServerSideProps = async ({req}) => {
 
   return {
     props: {
-      token: token || process.env.api_key,
+      token: token || process.env.API_KEY,
       nameLogo: nameLogo || ({} as NameLogoModelType),
       productData: productData || ([] as ProductDetailModelType[]),
     },
