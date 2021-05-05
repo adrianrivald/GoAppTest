@@ -7,17 +7,17 @@ import { useSelector } from 'react-redux'
 import Cookies from 'universal-cookie'
 import { GetCart } from '../../api/GetCart'
 import { GetNameAndLogo } from '../../api/GetNameAndLogo'
-// import Auth from '../../auth/Auth'
-import Header from '../../components/molecules/header/Header'
 import HeaderCart from '../../components/molecules/header/HeaderCart'
 import { CartModelType, LinesModelType } from '../../models/CartModel'
 import { NameLogoModelType } from '../../models/NameLogoModel'
-import { StoreStateType } from '../../store'
 import styles from './Cart.module.scss'
+
+const product1 = 'https://media.dev.goapp.co.id/45114758593096/image/catalog/product/66400602007112.jpeg';
+const product2 = 'https://media.dev.goapp.co.id/45114758593096/image/catalog/product/66419555921992.jpg'
+const product3 = 'https://media.dev.goapp.co.id/45114758593096/image/catalog/product/66419555921992.jpg'
 
 const Cart = ({
    token,
-   nameLogo
 } :InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const [cart, setCart] = useState({} as CartModelType)
   const [cartItem, setCartItem] = useState([] as LinesModelType[])
@@ -39,6 +39,31 @@ const Cart = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
 
+    const imagePicker = (uid: number) => {
+      switch (uid) {
+        case 45132716338248:
+          return product1
+        case 66396123755080:
+          return product2
+        case 66420830665288:
+          return product3
+        default:
+          break;
+      }
+    }
+    
+    const productNamePicker = (uid: number) => {
+        switch (uid) {
+          case 45132716338248:
+            return 'Gofit Premium Cotton 8600 Royal Blue'
+          case 66396123755080:
+            return 'Coffee Cup'
+          case 66420830665288:
+            return 'Kopi Eka Vian'
+          default:
+            break;
+        }
+    }
     return (
         <div className={`${styles['cart']}`}>
             <div className={`${styles['cart-item']}`}>
@@ -47,7 +72,15 @@ const Cart = ({
                   return (
                     <div className={`${styles['cart-list-item']}`}>
                       <h1>UID Product : {result.product.uid}</h1>
-                      <p>Quantity : {result.quantity}</p>
+                      <div className={`${styles['middle']}`}>
+                        <img src={imagePicker(result.product.uid)}/>
+                        <div className={`${styles['product-section']}`}>
+                          <span className={`${styles['product-name']}`}>
+                            {productNamePicker(result.product.uid)}
+                          </span>
+                          <p>Quantity : {result.quantity}</p>
+                        </div>
+                      </div>
                     </div>
                   )
                 })
@@ -62,12 +95,10 @@ const Cart = ({
 }
 export const getServerSideProps: GetServerSideProps = async () => {
   const token: number = Number(process.env.API_KEY);
-  const nameLogo: NameLogoModelType = await GetNameAndLogo(token);
   
     return {
       props: {
         token: token || process.env.api_key,
-        nameLogo: nameLogo || ({} as NameLogoModelType),
       },
     };
   };
