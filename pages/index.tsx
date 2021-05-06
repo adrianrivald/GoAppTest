@@ -2,7 +2,7 @@ import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { useRouter } from 'next/dist/client/router'
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useContext, useEffect, useState } from 'react'
 import { GetNameAndLogo } from '../api/GetNameAndLogo'
 import { GetProduct } from '../api/GetProduct'
 import { PostLogin } from '../api/PostLogin'
@@ -16,11 +16,16 @@ import { NameLogoModelType } from '../models/NameLogoModel'
 import { ProductDetailModelType } from '../models/ProductModel'
 import styles from '../styles/Home.module.scss'
 import Cookies from 'universal-cookie';
-import { UserInfoModelType, UserModelType } from '../models/UserModel'
+import { AuthModelType, UserInfoModelType, UserModelType } from '../models/UserModel'
 import { PostAddToCart } from '../api/PostAddToCart'
 import { GetUserInfo } from '../api/GetUserInfo'
 import Popup from '../components/atom/popup/Popup'
 import { ProductListMoreProps, productListMore } from '../helpers/productListData'
+import { PostRequestLogin } from '../api/PostRequestLogin'
+import React from 'react'
+import UserContext from '../context/UserContext'
+import UserModal from '../components/molecules/userModal/UserModal'
+import { OtpDetailModelType } from '../models/OtpModel'
 
 
 const Home = ({
@@ -39,34 +44,42 @@ const Home = ({
   const [isAddToCart, setIsAddToCart] = useState(false)
   const [toggleCart, setToggleCart] = useState(false)
   const [toggleLogin, setToggleLogin] = useState(false)
+  const [toggleUserInfo, setToggleUserInfo] = useState(false)
   const router = useRouter();
   let resultToken = '';
+  let resultUsername = '';
   const cookies = new Cookies();
   const cookie_token: string = process.env.COOKIE_TOKEN!;
+  const cookie_username: string = process.env.COOKIE_USERNAME!;
   const tokenLogin = cookies.get(cookie_token);
-  const [loginInput, setLoginInput] = useState({} as UserModelType);
+  const tokenUsername = cookies.get(cookie_username)
+  // const [loginInput, setLoginInput] = useState({} as UserModelType);
+
+
+  const [ inputOTP, setInputOTP ] = useState('')
+
+  const [ otpValues, setOtpValues ] = useState([] as OtpDetailModelType[])
   const dateExpired = new Date();
   dateExpired.setFullYear(dateExpired.getFullYear() + 1);
   //counter
   const [orderCounter, setOrderCounter] = useState(0);
   const [productUid, setProductUid] = useState(0);
-  const [userInfo, setUserInfo] = useState({} as UserInfoModelType);
+  const [ request, setRequest] = useState({} as AuthModelType)
+  const [ isOTPRequested, setIsOTPRequested ] = useState(false)
+  const [ maxLength, setMaxlength ] = useState(0)
+  const  userInfoContext  = React.useContext(UserContext)
 
-
-  useEffect(()=>{
-    setProductMore(productListMore)
-    getUserInfo();
+  useEffect(()=>{ 
+    userInfoContext
+    console.log(userInfoContext, 'infouser')
+    console.log(tokenLogin, 'auth')
+    console.log(otpValues.length, 'otplength')
     window.scroll(0,0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
-  const getUserInfo = () => {
-    if(tokenLogin){
-      GetUserInfo(tokenLogin).then((result)=> {
-        setUserInfo(result)
-      })
-    }
-  }
+    
+  
 
   const onChange = (e: any) => {
     e.preventDefault();
@@ -90,6 +103,16 @@ const Home = ({
     }, 500);
   }
 
+
+  const showUserInfo = () => {
+    if(tokenLogin.slice(0,1) === 'e') {
+      setToggleUserInfo(!toggleUserInfo)
+    } else {
+      setIsLoginFirst(true)
+      setToggleLogin(!toggleLogin)
+    }
+  }
+
   const imageStyle = {
     width: '30px',
     cursor: 'pointer'
@@ -103,7 +126,12 @@ const Home = ({
 
   const goToCart =() => {
     if(tokenLogin) {
-      router.push('/cart')
+      if(tokenLogin.slice(0,1) === 'e') {
+        router.push('/cart')
+      } else {
+        setIsLoginFirst(true)
+        setToggleLogin(!toggleLogin)
+      }
     } else {
       setIsLoginFirst(true)
       setToggleLogin(!toggleLogin)
@@ -111,14 +139,19 @@ const Home = ({
   }
 
   const addToCart = (uid: number, quantity: number) => {
-    if(tokenLogin) {
-      PostAddToCart(uid, quantity, token, tokenLogin).then((result)=> {
-          setToggleCart(false)
-          setIsAddToCart(true)
-          setTimeout(() => {
-            setIsAddToCart(false)
-          }, 5000);
-      })
+    if(tokenLogin){
+      if(tokenLogin.slice(0,1) === 'e') {
+        PostAddToCart(uid, quantity, token, tokenLogin).then((result)=> {
+            setToggleCart(false)
+            setIsAddToCart(true)
+            setTimeout(() => {
+              setIsAddToCart(false)
+            }, 5000);
+        })
+      } else {
+        setIsLoginFirst(true)
+        setToggleLogin(!toggleLogin)
+      }
     } else {
       setIsLoginFirst(true)
       setToggleLogin(!toggleLogin)
@@ -135,18 +168,29 @@ const Home = ({
 
   const cartChange = (count: number) => {
     setOrderCounter(count);
-
+    console.log(orderCounter,'apanicount')
   }
 
   const cartToggle = (uid: number) => {
-    if(tokenLogin){
-      setToggleCart(!toggleCart)
-      setProductUid(uid)
+    if(tokenLogin) {
+      if(tokenLogin.slice(0,1) === 'e'){
+        setToggleCart(!toggleCart)
+        setProductUid(uid)
+      } else {
+        setIsLoginFirst(true)
+        setToggleLogin(!toggleLogin)
+      }
     } else {
       setIsLoginFirst(true)
       setToggleLogin(!toggleLogin)
     }
   }
+
+  const updateValue = () => {
+    if (orderCounter < 1) {
+      onChange(1);
+    }
+  };
 
   const cartModal = (uid: number) => {
     return (
@@ -171,7 +215,10 @@ const Home = ({
                         pattern='[0-9]*'
                         className={`${styles['total']}`}
                         value={orderCounter}
-                        onChange={() => cartChange(orderCounter)}
+                        onChange={(e: any) => cartChange(e.target.value)}
+                        // onBlur={(e: ChangeEvent<HTMLInputElement>) => {
+                        //   updateValue(e.target.value);
+                        // }}
                       />
                       <span
                         className={`${styles['button']} ${styles['increment']}`}
@@ -194,35 +241,70 @@ const Home = ({
 
   const handleChange = (e: any) => {
     e.preventDefault();
-    const { value, name } = e.target;
-    setLoginInput((multipleInput) => ({ ...multipleInput, [name]: value }));
+    const { value } = e.target;
+    // setLoginInput((multipleInput) => ({ ...multipleInput, [name]: value }));
+    setInputOTP(value)
+    console.log(inputOTP, 'inputOTP')
   };
 
   const loginHandler = () => {
-   
-      PostLogin(loginInput, token).then((result) => {
+      console.log(tokenUsername, 'token')
+      PostLogin(tokenUsername, inputOTP , token).then((result) => {
         if(result){
           alert('Login Sukses!')
           resultToken = result.token;
           setIsError(false)
-          window.location.href = '/'
+          window.location.href = '/cart'
+          cookies.set(cookie_token, resultToken, {
+            path: '/',
+            expires: dateExpired
+          });
         } else {
           setIsError(true)
         }
       }).catch((e)=>{
         console.log(e,'error')
-        }).finally(()=>{
-          cookies.set(cookie_token, resultToken, {
-            path: '/',
-            expires: dateExpired
-          });
-      })
+        })
 
   }
 
   const logoutHandler = () => {
       cookies.remove(cookie_token);
       router.reload()
+  }
+
+  //Request OTP 
+
+  const usernameHandleChange = (e: any) => {
+    e.preventDefault();
+    const { value, name } = e.target;
+    setRequest((multipleInput) => ({ ...multipleInput, [name]: value }));
+  };
+
+  const requestOtp = () => {
+    PostRequestLogin(request, token).then((result)=> {
+        if(result.status === 'sent'){
+          console.log(result)
+            alert('OTP Requested, check your email')
+            setIsOTPRequested(true)
+            setMaxlength(result.length)
+            // router.push('/')
+            resultUsername = result.address
+            cookies.set(cookie_username, resultUsername, {
+              path: '/',
+              expires: dateExpired
+            });
+        }
+    }).catch((e)=>{
+      console.log(e,'error')
+    })
+  }
+
+
+  const userInfo = () =>{
+    setTimeout(() => {
+      return userInfoContext
+    }, 2000);
   }
 
   return (
@@ -241,19 +323,8 @@ const Home = ({
               />
               {/* <div className={`${styles['product-list-more']}`}>
                 <div className={`${styles['product-list-more-title']}`}>
-                  <h1>Produk lainnya</h1>
+
                 </div>
-                {
-                  productMore.map((result) => {
-                    return (
-                      <div className={`${styles['product-list-more-item']}`}>
-                        <span className={`${styles['title']}`}>
-                          {result.product_name}
-                        </span>
-                      </div>
-                    )
-                  })
-                }
               </div> */}
             </div>
           </>
@@ -304,7 +375,8 @@ const Home = ({
           value={search} 
           logoImage={nameAndLogo.logo.image_url} 
           cartImage="https://icons.iconarchive.com/icons/iconsmind/outline/512/Shopping-Cart-icon.png"
-          loginImage="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
+          userImage="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
+          loginImage="https://www.iconpacks.net/icons/2/free-user-login-icon-3057-thumb.png"
           onChange={onChange} 
           name="search_query" 
           onFocus={onFocus}
@@ -313,6 +385,9 @@ const Home = ({
           toggleLogin={showLogin}
           goToCart={goToCart}
           isSearch={isSearch}
+          toggleUserInfo={showUserInfo}
+          isLoggedin={tokenLogin}
+          userInfo={userInfoContext}
         />
 
         {/* Login Modal */}
@@ -320,24 +395,38 @@ const Home = ({
           popupHandler={showLogin}
           action={toggleLogin}
           loginHandler={loginHandler}
-          email={loginInput.username}
-          otpCode={loginInput.otp_code}
+          email={tokenUsername}
+          otpCode={inputOTP}
           handleChange={handleChange}
           isLoggedIn={tokenLogin}
           logoutHandler={logoutHandler}
           isError={isError}
           isLoginFirst={isLoginFirst}
-          account_email={userInfo.email}
-          account_name={userInfo.username}
-          business_name={userInfo.business_name}
+          requestEmail={request.address}
+          usernameHandleChange={usernameHandleChange}
+          isOTPRequested={isOTPRequested}
+          requestOtp={requestOtp}
+          maxLength={maxLength}
+          otpValues={otpValues}
         />
 
+        <UserModal
+          popupHandler={showUserInfo}
+          action={toggleUserInfo}
+          isLoggedIn={tokenLogin}
+          logoutHandler={logoutHandler}
+          isError={isError}
+          isLoginFirst={isLoginFirst}
+          account_email={tokenLogin && tokenLogin.slice(0,1) === 'e' ? userInfoContext.email : ''}
+          account_name={tokenLogin && tokenLogin.slice(0,1) === 'e' ? userInfoContext.first_name : ''}
+          business_name={tokenLogin && tokenLogin.slice(0,1) === 'e' ? userInfoContext.business_name : ''}
+          />
         {/* Popup AddtoCart */}
         {
           isAddToCart ?
             <Popup
               value="Success add to cart"
-              icon="https://lh3.googleusercontent.com/proxy/S2cE_uwPmIwKE_bBxIF54C_21HHjMhe18AIwWJhNP6AAd6m9R6NSC8QFEmNR7gei4zNdwYNulcA5Sgyt6anwBqqRAPUT-rR7HtiT6uAXimnqLB6-VeM2RYV2Ua4bitWqNA"
+              icon="https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678134-sign-check-512.png"
             /> : null
         }
         {

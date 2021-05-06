@@ -1,10 +1,13 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './Login.module.scss';
 import MaterialTextField from '../../atom/materialTextInput/MaterialTextInput';
 import FontAwesome from 'react-fontawesome';
 import { faCross, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
+import { useRouter } from 'next/dist/client/router';
+import { PostRequestLogin } from '../../../api/PostRequestLogin';
+import { OtpDetailModelType, OtpModelType } from '../../../models/OtpModel';
 
 
 interface AddressModalProps {
@@ -18,9 +21,16 @@ interface AddressModalProps {
     isLoggedIn: string;
     email: string;
     otpCode: string;
-    account_name: string;
-    business_name: string;
-    account_email: string;
+    // account_name: string;
+    // business_name: string;
+    // account_email: string;
+    isOTPRequested: boolean;
+    requestOtp: () => void;
+    usernameHandleChange: (e: any) => void;
+    requestEmail: string;
+    maxLength: number;
+    otpInput: string
+    otpValues: OtpDetailModelType[]
   }
 
 const LoginModal: FC<AddressModalProps> = (props) => {
@@ -35,9 +45,16 @@ const LoginModal: FC<AddressModalProps> = (props) => {
         email, 
         otpCode, 
         isLoginFirst,
-        account_email,
-        account_name,
-        business_name
+        // account_email,
+        // account_name,
+        // business_name,
+        isOTPRequested,
+        requestOtp,
+        usernameHandleChange,
+        requestEmail,
+        maxLength,
+        otpValues,
+        otpInput
     } = props;
   
     return (
@@ -50,13 +67,12 @@ const LoginModal: FC<AddressModalProps> = (props) => {
             {
                 isLoginFirst ? 
                 <div className={`${styles['login-first']}`}>
-                    Login sebelum masuk ke keranjang
+                    Login terlebih dahulu
                 </div> :
                 null
             }
-            {
-            isLoggedIn ? 
-            <div className={`${styles['logged-in']}`}> 
+           
+            {/* <div className={`${styles['logged-in']}`}> 
                 <div className={`${styles['user-info']}`}>
                     <h1>Hi, {account_name}</h1>
                     <div className={`${styles['user-detail']}`}>
@@ -73,26 +89,31 @@ const LoginModal: FC<AddressModalProps> = (props) => {
                         Logout
                     </button>
                 </div>
-            </div> :
+            </div>  */}
+            {
+            isOTPRequested ? 
             <>
             <div className={`${styles['title']}`}>
                 <h1>Login</h1>
             </div>
             <div className={`${styles['input']}`}>
-                <MaterialTextField
+                {/* <MaterialTextField
                     value={email}
                     placeholder="Masukkan alamat email"
                     label="Alamat Email"
                     onChange={handleChange}
                     name="username"
-                />
-                <MaterialTextField
-                    value={otpCode}
-                    placeholder="Masukkan otp Code"
-                    label="OTP Code"
-                    onChange={handleChange}
-                    name="otp_code"
-                /> 
+                /> */}
+                
+                            <input
+                                value={otpInput}
+                                onChange={handleChange}
+                                name="otp_code"
+                                maxLength={maxLength}
+                                style={{justifyContent: 'center'}}
+                            /> 
+                        
+
                 {
                     isError ?
                     <div className={`${styles['error']}`}>
@@ -103,13 +124,19 @@ const LoginModal: FC<AddressModalProps> = (props) => {
             <div className={`${styles['submit']}`}>
                 <button className={`${styles['button']}`} onClick={loginHandler}>Submit</button>
             </div>
-            <div className={`${styles['otp-request']}`}>
-                <span className={`${styles['text']}`}>
-                    Belum punya otp? Request dengan klik 
-                    <Link href="/request">
-                        <span className={`${styles['link']}`}> disini</span>
-                    </Link>
-                </span>
+            </> : 
+            <> 
+            <div className={`${styles['request']}`}>
+                <MaterialTextField
+                    label="Email"
+                    placeholder="Masukkan email Anda"
+                    name="address"
+                    value={requestEmail}
+                    onChange={usernameHandleChange}
+                />
+                <button className={`${styles['submit']}`} onClick={requestOtp}>
+                    Submit
+                </button>
             </div>
             </>
             }

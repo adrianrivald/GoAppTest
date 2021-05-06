@@ -2,7 +2,9 @@ import axios from 'axios';
 import { UserModelType } from '../models/UserModel';
 
 export const PostLogin = async (
-  data: UserModelType,
+  // data: UserModelType,
+  username: string,
+  otpCode: string,
   token: number
 ) => {
 
@@ -16,8 +18,8 @@ const result: any = await axios
     .post(
       `https://account.dev.goapp.co.id/auth/token-auth/`,
         {
-          username: data.username,
-          otp_code: data.otp_code,
+          username: username,
+          otp_code: otpCode,
         },
     )
     .then(({ data }) => {

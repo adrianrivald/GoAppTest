@@ -2,6 +2,8 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/dist/client/router';
 import React, { CSSProperties } from 'react';
+import Cookies from 'universal-cookie';
+import { UserInfoModelType } from '../../../models/UserModel';
 import SearchBar from '../../atom/searchBar/SearchBar';
 import styles from './Header.module.scss';
 
@@ -9,6 +11,7 @@ interface HeaderProps {
   logoImage: string;
   cartImage: string;
   loginImage: string;
+  userImage: string;
   value: string;
   onChange: (e: any) => void;
   onFocus: (e: any) => void;
@@ -16,8 +19,11 @@ interface HeaderProps {
   name: string;
   style?: CSSProperties;
   toggleLogin: (e: any) => void;
+  toggleUserInfo: (e: any) => void;
   goToCart: (e: any) => void;
-  isSearch: boolean
+  isSearch: boolean;
+  isLoggedin: {};
+  userInfo: UserInfoModelType | {};
 }
 
 const Header = (Props: HeaderProps) => {
@@ -33,10 +39,19 @@ const Header = (Props: HeaderProps) => {
     clickImage,
     toggleLogin,
     goToCart,
-    isSearch
+    isSearch,
+    isLoggedin,
+    toggleUserInfo,
+    userImage,
+    userInfo
   } = Props;
   const router = useRouter();
   
+  const cookies = new Cookies();
+  const cookie_token: string = process.env.COOKIE_TOKEN!;
+  const cookie_username: string = process.env.COOKIE_USERNAME!;
+  const tokenLogin = cookies.get(cookie_token);
+  const tokenUsername = cookies.get(cookie_username)
  
   return (
     <div className={`${styles['header']}`}>
@@ -54,8 +69,10 @@ const Header = (Props: HeaderProps) => {
               <div className={`${styles['cart']}`}>
                   <img src={cartImage} onClick={goToCart}/>
               </div>
-              <div className={`${styles['login']}`} onClick={toggleLogin}>
-                  <img src={loginImage} />
+              <div className={`${styles['login']}`}>
+                  <img 
+                    src={cookies.get(cookie_token) ? userImage : loginImage}  
+                    onClick={cookies.get(cookie_token) ? toggleUserInfo : toggleLogin}/>
               </div>
             </div>
         </div>

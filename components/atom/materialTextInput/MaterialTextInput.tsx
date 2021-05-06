@@ -3,13 +3,14 @@ import styles from './MaterialTextInput.module.scss';
 
 interface MaterialTextFieldProps {
   label: string;
-  placeholder: string;
+  placeholder?: string;
   name: string;
   value: string;
   onChange: (e: any) => void;
   style?: CSSProperties;
   rightIcon?: 'calendar' | 'arrow';
   dropDownItems?: { value: any; label: string }[];
+  maxLength?: number;
 }
 
 const MaterialTextField = (Props: MaterialTextFieldProps) => {
@@ -20,18 +21,20 @@ const MaterialTextField = (Props: MaterialTextFieldProps) => {
     name,
     value,
     onChange,
+    maxLength
   } = Props;
  
   return (
     <div className={`${styles['material-text-field']}`} style={style}>
       <span className={`${styles['label']}`}>{label}</span>
-      <div className={`${styles['input-area']}`}>
+      <div className={`${styles['input-area']}`} style={style}>
         <input
             type="text"
-            placeholder={placeholder}
+            maxLength={maxLength}
             name={name}
             value={value}
             onChange={onChange}
+            placeholder={placeholder}
           />
       </div>
       <div className={`${styles['line']}`} />
